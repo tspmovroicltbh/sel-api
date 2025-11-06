@@ -138,84 +138,23 @@ def load_items_database():
 
 items_lookup = load_items_database()
 
-import subprocess
-
-def check_chromedriver_deps():
-
-    """Check ChromeDriver dependencies"""
-
-    chromedriver_path = Path(__file__).parent / "chromedriver-linux64" / "chromedriver"
-
-    
-
-    try:
-
-        # Try to get dependency info
-
-        result = subprocess.run(
-
-            ['ldd', str(chromedriver_path)],
-
-            capture_output=True,
-
-            text=True
-
-        )
-
-        logger.info(f"ChromeDriver dependencies:\n{result.stdout}")
-
-        logger.error(f"Missing dependencies:\n{result.stderr}")
-
-    except Exception as e:
-
-        logger.error(f"Could not check dependencies: {e}")
-
-# Call before setup_driver()
-
-check_chromedriver_deps()
-
 def setup_driver():
     """Setup headless Chrome driver with portable Chrome"""
     import os
     from pathlib import Path
     
-    # Get paths relative to bot.py
-    base_dir = Path(__file__).parent.absolute()
-    chrome_binary = base_dir / "chrome-linux64" / "chrome"
-    chromedriver_binary = base_dir / "chromedriver-linux64" / "chromedriver"
-    
-    # Make executables if not already
-    if chrome_binary.exists():
-        os.chmod(chrome_binary, 0o755)
-    if chromedriver_binary.exists():
-        os.chmod(chromedriver_binary, 0o755)
-    
     chrome_options = Options()
-    chrome_options.binary_location = str(chrome_binary)
-    chrome_options.add_argument('--headless=new')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-    chrome_options.add_argument('--window-size=1920,1080')
-    chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
-    chrome_options.add_argument('--disable-extensions')
-    chrome_options.add_argument('--disable-logging')
-    chrome_options.add_argument('--log-level=3')
-    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    chrome_options.page_load_strategy = 'eager'
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920,1080")
     
-    try:
-        service = Service(executable_path=str(chromedriver_binary))
-        driver = webdriver.Chrome(service=service, options=chrome_options)
-        driver.set_page_load_timeout(30)
-        driver.implicitly_wait(5)
-        return driver
-    except Exception as e:
-        logger.error(f"Failed to initialize Chrome driver: {e}")
-        logger.error(f"Chrome binary: {chrome_binary} (exists: {chrome_binary.exists()})")
-        logger.error(f"ChromeDriver binary: {chromedriver_binary} (exists: {chromedriver_binary.exists()})")
-        raise
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.set_page_load_timeout(30)
+    driver.implicitly_wait(5)
+    return driver
+
 
 def parse_currency(value_str):
     """Parse currency string to float with robust handling"""
@@ -593,3 +532,4 @@ def get_inventory(ign: str):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("render_scraper:app", host="0.0.0.0", port=port)
+
