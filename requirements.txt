@@ -5,3 +5,4 @@ pydantic
 requests
 webdriver-manager
 python-multipart
+aiohttp
