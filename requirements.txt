@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+selenium
+pydantic
+requests
+webdriver-manager
+python-multipart
