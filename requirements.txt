@@ -6,3 +6,4 @@ requests
 webdriver-manager
 python-multipart
 aiohttp
+pillow
